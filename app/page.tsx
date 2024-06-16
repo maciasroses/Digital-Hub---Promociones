@@ -4,7 +4,9 @@ import { Promobanner } from "./components";
 export default function Home() {
   return (
     <div>
-      <h1>Entiendes?</h1>
+      <h1>
+        <Promobanner />
+      </h1>
     </div>
   );
 }
