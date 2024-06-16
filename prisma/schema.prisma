@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RecompensaTipo {
+  Descuento_Porcentaje
+  Descuento_Monto
+  Producto_Gratis
+}
+
+model Producto {
+  sku          String @id @default(uuid())
+  nombre       String
+  precio_neto  Float
+  ieps         Float
+  iva          Float
+  precio_total Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SegmentoOnProductos  SegmentoOnProductos[]
+  promocion            Promocion[]           @relation("producto")
+  recomenpensaProducto Promocion[]           @relation("recomenpensaProducto")
+}
+
+model Segmento {
+  id     String @id @default(uuid())
+  nombre String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SegmentoOnProductos SegmentoOnProductos[]
+  promocion           Promocion[]
+}
+
+model SegmentoOnProductos {
+  producto   Producto @relation(fields: [productoId], references: [sku])
+  productoId String
+  segmento   Segmento @relation(fields: [segmentoId], references: [id])
+  segmentoId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([segmentoId, productoId])
+}
+
+model Promocion {
+  id            String         @id @default(uuid())
+  fecha_termino DateTime
+  titulo        String
+  descripcion   String
+  presupuesto   Float
+  pais          String
+  ciudad        String
+  requisito     String
+  tipo          RecompensaTipo
+  porcentaje    Float?
+  descuento     Float?
+  imagen        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  producto             Producto? @relation("producto", fields: [productoId], references: [sku])
+  productoId           String?
+  recomenpensaProducto Producto? @relation("recomenpensaProducto", fields: [recompensaProductoId], references: [sku])
+  recompensaProductoId String?
+  segmento             Segmento? @relation(fields: [segmentoId], references: [id])
+  segmentoId           String?
+}
