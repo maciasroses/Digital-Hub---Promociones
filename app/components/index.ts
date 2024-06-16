@@ -1,5 +1,9 @@
 import Promobanner from "./Promobanner";
-import CreateProducto from "./CreateProducto";
-import TextToSpeech from "./TextToSpeech";
+
+import ButtomPromo from "./buttomPromo";
+import InfoPromo from "./InfoPromo";
+import loadCustomRoutes from "@/node_modules/next/dist/lib/load-custom-routes";
+import lacteos from "./lacteos";
+
 
 export { Promobanner, CreateProducto, TextToSpeech };

@@ -5,8 +5,11 @@ export default function Home() {
   const textToSpeak = "¡Hola! Soy Mónica, la voz de esta aplicación.";
   return (
     <div>
-      <h1>Entiendes?</h1>
-      <TextToSpeech text={textToSpeak} />
+
+      <h1>
+        <Promobanner />
+      </h1>
+
     </div>
   );
 }
