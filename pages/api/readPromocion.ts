@@ -13,10 +13,35 @@ export default async function handler(
             where: {
               id: req.query.id.toString(),
             },
+            include: {
+              producto: {
+                select: {
+                  precio_total: true,
+                },
+              },
+              recomenpensaProducto: {
+                select: {
+                  precio_total: true,
+                },
+              },
+            },
           });
           return res.status(200).json(data);
         } else {
-          const data = await prisma.promocion.findMany();
+          const data = await prisma.promocion.findMany({
+            include: {
+              producto: {
+                select: {
+                  precio_total: true,
+                },
+              },
+              recomenpensaProducto: {
+                select: {
+                  precio_total: true,
+                },
+              },
+            },
+          });
           return res.status(200).json(data);
         }
       } catch (error) {

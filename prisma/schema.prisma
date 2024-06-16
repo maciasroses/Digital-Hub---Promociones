@@ -61,6 +61,7 @@ model SegmentoOnProductos {
 model Promocion {
   id            String         @id @default(uuid())
   fecha_termino DateTime
+  titulo        String
   descripcion   String
   presupuesto   Float
   pais          String
@@ -69,6 +70,7 @@ model Promocion {
   tipo          RecompensaTipo
   porcentaje    Float?
   descuento     Float?
+  imagen        String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

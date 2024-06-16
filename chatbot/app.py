@@ -27,7 +27,7 @@ def getChatResponse():
         "messages":[
             {
                 "role": "system",
-                "content": "Eres un asistente que ayudas al cliente sobre sus dudas en cuanto a los descuentos, ademas tienes un asistente que te da contexto sobre las promociones. "
+                "content": "Eres un asistente que ayudas al cliente sobre sus dudas en cuanto a los descuentos, ademas tienes un asistente que te da contexto sobre las promociones. Por último, los precios son en pesos mexicanos."
             }
         ]
     }

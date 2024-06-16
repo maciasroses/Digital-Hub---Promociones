@@ -1,17 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Promo1 from "@/public/promo1.png";
+import Chatbot from "./Chatbot";
 
 interface PromoCardProps {
   nombre: string;
+  id: string;
   descripcion: string;
-  precio: number;
+  imagen: string;
+  precioWithPromo: number;
+  precioWithoutPromo: number;
+  updateLocalStorage: (id: string, quantity: number) => void;
 }
 
-const PromoCard = ({ nombre, descripcion, precio }: PromoCardProps) => {
+const PromoCard = ({
+  nombre,
+  descripcion,
+  imagen,
+  precioWithPromo,
+  precioWithoutPromo,
+  id,
+  updateLocalStorage,
+}: PromoCardProps) => {
   const [quantity, setQuantity] = useState(0);
+
+  useEffect(() => {
+    updateLocalStorage(id, quantity);
+  }, [quantity]);
 
   const handleAddClick = () => {
     setQuantity(1);
@@ -53,36 +69,42 @@ const PromoCard = ({ nombre, descripcion, precio }: PromoCardProps) => {
           fill="#f5f5f4"
         />
       </svg>
-      <button
-        type="button"
-        className="absolute top-3 right-3 bg-red-600 rounded-full p-2 z-50"
-      >
-        <img
-          className="w-6"
-          src="https://static-00.iconduck.com/assets.00/live-chat-icon-2048x1882-k954apfz.png"
-          alt="Live Chat"
-        />
-      </button>
+
+      <Chatbot description={descripcion} width="w-6" />
 
       <div className="relative pt-10 px-10 flex items-center justify-center">
         <div className="block absolute w-48 h-48 bottom-0 left-0 -mb-24 ml-3"></div>
-        <Image className="relative w-40 h-40" src={Promo1} alt="" />
+        <Image
+          className="relative w-40 h-40"
+          src={imagen}
+          alt=""
+          width={100}
+          height={100}
+        />
       </div>
       <div className="relative text-black px-6 pb-6 mt-6">
-        <span className="block font-semibold text-xl">{nombre}</span>
-        <div className="flex justify-between">
-          <span className="block text-black bg-transparent rounded-full text-orange-500 text-xs font-bold py-2 leading-none flex items-center">
-            ${precio}
+        <span className="block font-semibold text-2xl">{nombre}</span>
+        <div className="flex gap-3">
+          <span className="block text-red-600 bg-transparent line-through rounded-full text-orange-500 text-xl font-bold py-2 leading-none flex items-center">
+            $
+            {(quantity == 0
+              ? precioWithoutPromo
+              : precioWithoutPromo * quantity
+            ).toFixed(2)}
           </span>
-          <span className="block text-red-600 bg-transparent line-through rounded-full text-orange-500 text-xs font-bold py-2 leading-none flex items-center">
-            $63.00
+          <span className="block text-black bg-transparent rounded-full text-green-700 text-3xl font-bold py-2 leading-none flex items-center">
+            $
+            {(quantity == 0
+              ? precioWithPromo
+              : precioWithPromo * quantity
+            ).toFixed(2)}
           </span>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-end">
           {quantity === 0 ? (
             <button
               onClick={handleAddClick}
-              className="block text-white bg-red-600 rounded-full text-orange-500 text-xs font-bold px-6 py-2 leading-none flex items-center"
+              className="block text-white bg-red-600 rounded-full text-orange-500 text-base font-bold px-6 py-2 leading-none flex items-center"
             >
               Agregar
             </button>
@@ -110,13 +132,110 @@ const PromoCard = ({ nombre, descripcion, precio }: PromoCardProps) => {
 };
 
 export default function Home() {
+  const [promotions, setPromotions] = useState([] as any);
+
+  const calculatePriceByType = (
+    type: string,
+    porcentaje: number,
+    descuento: number,
+    price: number,
+    freeProductPrice: number,
+    req: string
+  ) => {
+    const precioReq = price * Number(req);
+    switch (type) {
+      case "Descuento_Porcentaje":
+        return {
+          priceWithPromo: precioReq - (precioReq * porcentaje) / 100,
+          priceWithoutPromo: precioReq,
+        };
+      case "Descuento_Monto":
+        return {
+          priceWithPromo: precioReq - descuento,
+          priceWithoutPromo: precioReq,
+        };
+      case "Producto_Gratis":
+        return {
+          priceWithPromo: precioReq,
+          priceWithoutPromo: precioReq + freeProductPrice,
+        };
+      default:
+        return {
+          priceWithPromo: precioReq,
+          priceWithoutPromo: precioReq,
+        };
+    }
+  };
+
+  interface pricesProps {
+    priceWithPromo: number;
+    priceWithoutPromo: number;
+  }
+
+  useEffect(() => {
+    try {
+      const fetchPromotions = async () => {
+        const res = await fetch("/api/readPromocion");
+        if (res.ok) {
+          const data = await res.json();
+          const formatedData = data.map((promotion: any) => {
+            const { priceWithPromo, priceWithoutPromo }: pricesProps =
+              calculatePriceByType(
+                promotion.tipo,
+                promotion.porcentaje,
+                promotion.descuento,
+                promotion.producto.precio_total,
+                promotion.recomenpensaProducto?.precio_total || 0,
+                promotion.requisito
+              );
+            return {
+              ...promotion,
+              precioWithPromo: priceWithPromo,
+              precioWithoutPromo: priceWithoutPromo,
+            };
+          });
+          window.localStorage.setItem(
+            "promotions",
+            JSON.stringify(formatedData)
+          );
+          setPromotions(formatedData);
+        }
+      };
+      fetchPromotions();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const updateLocalStorage = (id: string, quantity: number) => {
+    const currentData = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    const newData = currentData.filter((item: any) => item.id !== id);
+    if (quantity > 0) {
+      const promotion = promotions.find((promo: any) => promo.id === id);
+      if (promotion) {
+        newData.push({ ...promotion, quantity });
+      }
+    }
+    localStorage.setItem("cart", JSON.stringify(newData));
+  };
+
   return (
     <div className="p-24 flex flex-wrap items-center justify-center">
-      <PromoCard
-        nombre="5 cajas de Coca-Cola + 1 caja de Fuze tea"
-        descripcion=""
-        precio={36.0}
-      />
+      {promotions &&
+        promotions.length > 0 &&
+        promotions.map((promotion: any) => (
+          <PromoCard
+            key={promotion.id}
+            id={promotion.id}
+            nombre={promotion.titulo}
+            descripcion={promotion.descripcion}
+            imagen={promotion.imagen}
+            precioWithPromo={promotion.precioWithPromo}
+            precioWithoutPromo={promotion.precioWithoutPromo}
+            updateLocalStorage={updateLocalStorage}
+          />
+        ))}
     </div>
   );
 }

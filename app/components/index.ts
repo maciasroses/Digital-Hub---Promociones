@@ -1,9 +1,7 @@
 import Promobanner from "./Promobanner";
+import TextToSpeech from "./TextToSpeech";
+import Navbar from "./Navbar";
+import Chatbot from "./Chatbot";
+import GlobalChatBot from "./GlobalChatBot";
 
-import ButtomPromo from "./buttomPromo";
-import InfoPromo from "./InfoPromo";
-import loadCustomRoutes from "@/node_modules/next/dist/lib/load-custom-routes";
-import lacteos from "./lacteos";
-
-
-export { Promobanner, CreateProducto, TextToSpeech };
+export { Promobanner, TextToSpeech, Navbar, Chatbot, GlobalChatBot };
