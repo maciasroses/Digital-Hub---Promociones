@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@prisma/client";
+import prisma from "../../prisma/client";
 
 type productoProps = {
   sku: string;
@@ -8,7 +8,6 @@ type productoProps = {
   ieps: number;
   iva: number;
   precio_total: number;
-  categoria: string;
 };
 
 export default async function handler(
@@ -18,21 +17,26 @@ export default async function handler(
   try {
     const producto: productoProps = JSON.parse(req.body);
     if (req.method === "POST") {
-      if (!post.title.length) {
+      if (!producto.nombre.length) {
         return res
           .status(500)
           .json({ message: "Please do not leave this empty" });
       }
       try {
-        const data = await prisma.post.create({
+        const data = await prisma.producto.create({
           data: {
-            title: post.title,
+            nombre: producto.nombre,
+            precio_neto: producto.precio_neto,
+            ieps: producto.ieps,
+            iva: producto.iva,
+            precio_total: producto.precio_total,
           },
         });
-        // res.status(200).json(data)
         return res.status(200).json({ data, message: "Event successfully" });
       } catch (error) {
-        return res.status(500).json({ message: "Error creating a new post" });
+        return res
+          .status(500)
+          .json({ message: "Error creating a new product" });
       }
     }
   } catch (error) {
