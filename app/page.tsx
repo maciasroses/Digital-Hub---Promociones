@@ -1,12 +1,12 @@
 import Image from "next/image";
-import { Promobanner, CreateProducto } from "./components";
+import { Promobanner, CreateProducto, TextToSpeech } from "./components";
 
 export default function Home() {
+  const textToSpeak = "¡Hola! Soy Mónica, la voz de esta aplicación.";
   return (
     <div>
-      {/* CAMBIOS PARA VIC */}
       <h1>Entiendes?</h1>
-      <CreateProducto />
+      <TextToSpeech text={textToSpeak} />
     </div>
   );
 }
