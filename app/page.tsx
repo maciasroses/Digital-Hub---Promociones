@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Promobanner } from "./components";
+import { Promobanner, CreateProducto } from "./components";
 
 export default function Home() {
   return (
@@ -7,6 +7,7 @@ export default function Home() {
       <h1>
         <Promobanner />
       </h1>
+
     </div>
   );
 }
