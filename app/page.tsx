@@ -4,6 +4,7 @@ import { Promobanner, CreateProducto } from "./components";
 export default function Home() {
   return (
     <div>
+      {/* CAMBIOS PARA VIC */}
       <h1>Entiendes?</h1>
       <CreateProducto />
     </div>
